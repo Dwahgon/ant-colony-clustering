@@ -1,9 +1,5 @@
-#define N_ANTS 40
 #define N_ITEMS 400
 #define ITERATIONS 1000000
-#define DATA_DIMENSIONS 2
-#define DATA_MIN 0
-#define DATA_MAX 10
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,19 +7,26 @@
 #include "ant.h"
 #include "grid.h"
 #include "utils.h"
+#include "parseargs.h"
+#include "parsefile.h"
 
-
-void grid_draw(int grid[HEIGHT][WIDTH], Ant ants[N_ANTS], int draw_ants){
+void grid_draw(Grid *grid, Ant *ants, int n_ants, int draw_ants)
+{
     int i, j, k, ant_status;
     Ant *p_ant;
-    for (i = 0; i < HEIGHT; i++){
-        for(j = 0; j < WIDTH; j++){
+    for (i = 0; i < grid->height; i++)
+    {
+        for (j = 0; j < grid->width; j++)
+        {
             ant_status = 0;
-            if (draw_ants){
-                for (k = 0; k < N_ANTS; k++){
+            if (draw_ants)
+            {
+                for (k = 0; k < n_ants; k++)
+                {
                     p_ant = &ants[k];
-                    if (p_ant->i == i && p_ant->j == j){
-                        ant_status = p_ant->carrying + 1;
+                    if (p_ant->i == i && p_ant->j == j)
+                    {
+                        ant_status = ant_is_carrying(p_ant) + 1;
                         break;
                     }
                 }
@@ -32,75 +35,96 @@ void grid_draw(int grid[HEIGHT][WIDTH], Ant ants[N_ANTS], int draw_ants){
                 printf("&");
             else if (ant_status == 1)
                 printf("@");
-            else if (grid[i][j])
-                printf("*");
+            else if (grid_has_item(grid, i, j))
+                printf("%c", 'a' - 1 + grid_get_item(grid, i, j)->y);
             else
                 printf(" ");
         }
         printf("\n");
     }
-    printf("-----------------------------------------\n");
+    for (i = 0; i < grid->width; i++)
+    {
+        printf("=");
+    }
+    printf("\n");
 }
 
-void simulate(Ant ants[N_ANTS], int grid[HEIGHT][WIDTH]){
+void simulate(Ant *ants, int n_ants, Grid *grid)
+{
     int i;
-    for (i = 0; i < N_ANTS; i++)
+    for (i = 0; i < n_ants; i++)
         ant_simulate(grid, &ants[i]);
 }
 
-
-int main(){
-    Ant ants[N_ANTS], *carryingAnts[N_ANTS], *p_ant;
-    int grid[HEIGHT][WIDTH];
+int main(int argc, char **argv)
+{
+    Args args;
+    Ant *ants, *p_ant;
+    Grid *grid;
+    GridItem **grid_items;
     double p;
     int i, j, k, ant_status, r, n_items, it;
+
+    parse_args(&args, argc, argv);
+    k1 = args.k1;
+    k2 = args.k2;
+    alpha = args.alpha;
+    grid = grid_init(args.grid_width, args.grid_height, args.data_dimensions);
+    ants = (Ant *)calloc(args.n_ants, sizeof(Ant));
+    grid_items = parse_file(args.filePath, args.data_dimensions, &n_items);
+    grid_place_items_randomly(grid, grid_items, n_items);
+    free(grid_items);
+
     srand(time(NULL));
 
     // init ants
-    for (i = 0; i < N_ANTS; i++){
+    for (i = 0; i < args.n_ants; i++)
+    {
         p_ant = &ants[i];
-        p_ant->i = rand() % HEIGHT;
-        p_ant->j = rand() % WIDTH;
-        p_ant->carrying = 0;
+        p_ant->i = rand() % grid->height;
+        p_ant->j = rand() % grid->width;
+        p_ant->carrying_item = NULL;
         p_ant->change_dir_prob = 0.;
         p_ant->current_dir = rand() % 8;
     }
-    // init grid
-    for (i = 0; i < HEIGHT; i++){
-        for (j = 0; j < WIDTH; j++){
-            grid[i][j] = 0;
-        }
-    }
-    // place items
-    for(i = 0; i < N_ITEMS; i++){
-        if (grid[rand() % HEIGHT][rand() % WIDTH]) i--;
-        else grid[rand() % HEIGHT][rand() % WIDTH] = 1;
-    }
 
     // Draw
-    grid_draw(grid, ants, 1);
+    grid_draw(grid, ants, args.n_ants, 1);
 
     // Run ant logic
-    for(it = 0; it < ITERATIONS; it++){
-        // getchar();
-        simulate(ants, grid);
-        // grid_draw(grid, ants);
+    for (it = 0; it < ITERATIONS; it++)
+    {
+        if (args.interactive)
+            getchar();
+        simulate(ants, args.n_ants, grid);
+        if (args.interactive)
+            grid_draw(grid, ants, args.n_ants, 1);
     }
 
-    while(1){
+    grid_draw(grid, ants, args.n_ants, 1);
+
+    while (1)
+    {
         j = 0;
-        for (i = 0; i < N_ANTS; i++) {
+        for (i = 0; i < args.n_ants; i++)
+        {
             p_ant = &ants[i];
-            if (p_ant->carrying){
-                j = 1;
+            if (p_ant->carrying_item)
+            {
+                j++;
                 ant_simulate(grid, p_ant);
             }
         }
-        if(!j) break;
+        if (!j)
+            break;
     }
 
     // Draw
-    grid_draw(grid, ants, 0);
+    grid_draw(grid, ants, args.n_ants, 0);
+
+    grid = grid_free(grid);
+    free(args.filePath);
+    free(ants);
 
     return 0;
 }

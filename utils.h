@@ -2,7 +2,9 @@
 #define UTILS_H
 
 int mod(int x, int y);
-int dir_to_hdir(int dir);
-int dir_to_vdir(int dir);
+char dir_to_hdir(unsigned char dir);
+char dir_to_vdir(unsigned char dir);
+double distance_squared(double *d1, double *d2, int dimensions);
+double distance(double *d1, double *d2, int dimensions);
 
 #endif
