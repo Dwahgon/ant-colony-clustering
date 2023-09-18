@@ -56,6 +56,19 @@ void simulate(Ant *ants, int n_ants, Grid *grid)
         ant_simulate(grid, &ants[i]);
 }
 
+void validate(Grid *grid, int n_items){
+    int i, j;
+    unsigned int cont;
+    for (i = 0; i < grid->height; i++){
+        for (j = 0; j < grid->width; j++){
+            cont += (unsigned int)grid_has_item(grid, i, j);
+        }
+    }
+    if (cont != n_items){
+        printf("error: there are missing items\n");
+    }
+}
+
 int main(int argc, char **argv)
 {
     Args args;
@@ -121,6 +134,7 @@ int main(int argc, char **argv)
 
     // Draw
     grid_draw(grid, ants, args.n_ants, 0);
+    validate(grid, n_items);
 
     grid = grid_free(grid);
     free(args.filePath);
