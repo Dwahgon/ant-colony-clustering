@@ -66,6 +66,10 @@ GridItem **parse_file(char *file_path, int data_dimensions, int *n_items)
     GridItem *gi = NULL;
 
     p_file = fopen(file_path, "r");
+    if (p_file == NULL){
+        printf("Could not open file %s\n", file_path);
+        exit(1);
+    }
     while (fgets(buf, 100, p_file))
     {
         if (strchr(buf, '#'))
@@ -93,5 +97,6 @@ GridItem **parse_file(char *file_path, int data_dimensions, int *n_items)
             gi = NULL;
         }
     }
+    fclose(p_file);
     return gilist_to_array(list, n_items);
 }
