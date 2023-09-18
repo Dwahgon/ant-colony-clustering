@@ -24,7 +24,7 @@ Grid *grid_init(int width, int height, int data_dim)
     GridItem ***matrix = (GridItem ***)calloc(height, sizeof(GridItem **));
     for (i = 0; i < height; i++)
     {
-        matrix[i] = (GridItem **)calloc(height, sizeof(GridItem *));
+        matrix[i] = (GridItem **)calloc(width, sizeof(GridItem *));
         for (j = 0; j < width; j++)
         {
             matrix[i][j] = NULL;
