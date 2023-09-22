@@ -8,14 +8,14 @@ void parse_args(Args *args, int argc, char **argv)
     int i, *p_write_i = NULL;
     double *p_write_d = NULL;
     char **p_write_s = NULL;
-    args->n_ants = 20;
-    args->grid_width = 50;
-    args->grid_height = 50;
+    args->n_ants = 10;
+    args->grid_width = -1;
+    args->grid_height = -1;
     args->k1 = 1.0;
     args->k2 = 1.0;
     args->alpha = 1.0;
     args->data_dimensions = 2;
-    args->iterations = 100000;
+    args->iterations = -1;
     args->filePath = NULL;
     args->interactive = 0;
 

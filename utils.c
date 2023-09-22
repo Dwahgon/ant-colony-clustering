@@ -7,6 +7,10 @@ int mod(int x, int y)
     return m < 0 ? ((y < 0) ? m - y : m + y) : m;
 }
 
+int max(int x, int y) {
+    return x > y ? x : y;
+}
+
 char dir_to_hdir(unsigned char dir)
 {
     return (dir == 0 || dir == 1 || dir == 8) - (dir >= 3 && dir <= 5);

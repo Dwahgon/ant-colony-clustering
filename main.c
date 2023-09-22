@@ -1,5 +1,3 @@
-#define N_ITEMS 400
-#define ITERATIONS 1000000
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -82,9 +80,14 @@ int main(int argc, char **argv)
     k1 = args.k1;
     k2 = args.k2;
     alpha = args.alpha;
+    grid_items = parse_file(args.filePath, args.data_dimensions, &n_items);
+    // [1] "The total number of iterations has to grow with the size of the data set. Linear growth proves to be sufficient, as this keeps the average number of times each grid cell is visited constant. Here, #iterations=2000*n_items with a minimal number of 1 million iterations imposed."
+    args.iterations = args.iterations == -1 ? max(2000*n_items, 1000000) : args.interactive;
+    // [1] " Given a set of n_items items, the grid (comprising a total of N_cells cells) should offer a sufficient amount of ‘free’ space to permit the quick dropping of data items (note that each grid cell can only be occupied by one data item). This can be achieved by keeping the ratio r_occupied=N_items/N_cells constant. A good value, found experimentally, is 1/10. We obtain this by using a square grid with a resolution of sqrt(10*N_items)xsqrt(10*N_items) grid cells."
+    args.grid_width = args.iterations == -1 ? (int)sqrt(10.0*(double)n_items) : args.grid_width;
+    args.grid_height = args.iterations == -1 ? args.grid_width : args.grid_height;
     grid = grid_init(args.grid_width, args.grid_height, args.data_dimensions);
     ants = (Ant *)calloc(args.n_ants, sizeof(Ant));
-    grid_items = parse_file(args.filePath, args.data_dimensions, &n_items);
     grid_place_items_randomly(grid, grid_items, n_items);
     free(grid_items);
 
@@ -105,7 +108,7 @@ int main(int argc, char **argv)
     grid_draw(grid, ants, args.n_ants, 1);
 
     // Run ant logic
-    for (it = 0; it < ITERATIONS; it++)
+    for (it = 0; it < args.iterations; it++)
     {
         if (args.interactive)
             getchar();
@@ -142,3 +145,5 @@ int main(int argc, char **argv)
 
     return 0;
 }
+
+// [1] - Ant-based clustering: a comparative study of its relative performance with respect to-means, average link and 1d-so
