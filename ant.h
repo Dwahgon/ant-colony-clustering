@@ -9,9 +9,10 @@
 #define DIR_CHANGE_PROB_INCREASE 0.5
 #define VIEW_RADIUS 1
 
-#define VIEW_RADIUS_AREA (1+2*VIEW_RADIUS)*(1+2*VIEW_RADIUS)
+#define VIEW_RADIUS_AREA (1 + 2 * VIEW_RADIUS) * (1 + 2 * VIEW_RADIUS)
 
-typedef struct ant{
+typedef struct ant
+{
     int i;
     int j;
     int carrying;
@@ -21,6 +22,5 @@ typedef struct ant{
 
 void ant_pick_drop_0(int grid[HEIGHT][WIDTH], Ant *p_ant);
 void ant_simulate(int grid[HEIGHT][WIDTH], Ant *p_ant);
-
 
 #endif
