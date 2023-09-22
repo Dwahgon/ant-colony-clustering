@@ -57,7 +57,7 @@ void simulate(Ant *ants, int n_ants, Grid *grid)
 void validate(Grid *grid, int n_items)
 {
     int i, j;
-    unsigned int cont;
+    unsigned int cont = 0;
     for (i = 0; i < grid->height; i++)
     {
         for (j = 0; j < grid->width; j++)
@@ -67,7 +67,7 @@ void validate(Grid *grid, int n_items)
     }
     if (cont != n_items)
     {
-        printf("error: there are missing items\n");
+        printf("error: there are missing items: n_items=%d cont=%u\n", n_items, cont);
     }
 }
 
@@ -86,10 +86,10 @@ int main(int argc, char **argv)
     alpha = args.alpha;
     grid_items = parse_file(args.filePath, args.data_dimensions, &n_items);
     // [1] "The total number of iterations has to grow with the size of the data set. Linear growth proves to be sufficient, as this keeps the average number of times each grid cell is visited constant. Here, #iterations=2000*n_items with a minimal number of 1 million iterations imposed."
-    args.iterations = args.iterations == -1 ? max(2000*n_items, 1000000) : args.interactive;
+    args.iterations = args.iterations == -1 ? max(2000 * n_items, 1000000) : args.interactive;
     // [1] " Given a set of n_items items, the grid (comprising a total of N_cells cells) should offer a sufficient amount of ‘free’ space to permit the quick dropping of data items (note that each grid cell can only be occupied by one data item). This can be achieved by keeping the ratio r_occupied=N_items/N_cells constant. A good value, found experimentally, is 1/10. We obtain this by using a square grid with a resolution of sqrt(10*N_items)xsqrt(10*N_items) grid cells."
-    args.grid_width = args.iterations == -1 ? (int)sqrt(10.0*(double)n_items) : args.grid_width;
-    args.grid_height = args.iterations == -1 ? args.grid_width : args.grid_height;
+    args.grid_width = args.grid_width == -1 ? (int)sqrt(10.0 * (double)n_items) : args.grid_width;
+    args.grid_height = args.grid_height == -1 ? args.grid_width : args.grid_height;
     grid = grid_init(args.grid_width, args.grid_height, args.data_dimensions);
     ants = (Ant *)calloc(args.n_ants, sizeof(Ant));
     grid_place_items_randomly(grid, grid_items, n_items);
